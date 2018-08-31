@@ -90,3 +90,8 @@ bot.dialog('/', //basicQnAMakerDialog);
             }
         }
     ]);
+
+server.get('/', restify.plugins.serveStatic({  
+        directory: __dirname,  
+        default: '/index.html'  
+       })); 
