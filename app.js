@@ -10,16 +10,16 @@ var builder_cognitiveservices = require("botbuilder-cognitiveservices");
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url); 
+    console.log('%s listening to %s', server.name, server.url);
 });
 
 require('dotenv').config();
-  
+
 // Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword,
-    openIdMetadata: process.env.BotOpenIdMetadata 
+    openIdMetadata: process.env.BotOpenIdMetadata
 });
 
 // Listen for messages from users 
@@ -39,59 +39,81 @@ var tableStorage = new botbuilder_azure.AzureBotStorage({ gzipData: false }, azu
 var bot = new builder.UniversalBot(connector);
 bot.set('storage', tableStorage);
 
+
+
+// Make sure you add code to validate these fields
+var luisAppId = process.env.LuisAppId;
+var luisAPIKey = process.env.LuisAPIKey;
+var luisAPIHostName = process.env.LuisAPIHostName || 'westus.api.cognitive.microsoft.com';
+
+const LuisModelUrl = 'https://' + luisAPIHostName + '/luis/v2.0/apps/' + luisAppId + '?subscription-key=' + luisAPIKey;
+
+var luisRecognizer = new builder.LuisRecognizer(LuisModelUrl);
+bot.recognizer(luisRecognizer);
+
+
 // Recognizer and and Dialog for preview QnAMaker service
-var previewRecognizer = new builder_cognitiveservices.QnAMakerRecognizer({
-    knowledgeBaseId: process.env.QnAKnowledgebaseId,
-    authKey: process.env.QnAAuthKey || process.env.QnASubscriptionKey
+var licenseRecognizer = new builder_cognitiveservices.QnAMakerRecognizer({
+    knowledgeBaseId: process.env.licenseQNABASEID,
+    authKey: process.env.QnAAuthKey || process.env.QnASubscriptionKey,
+    endpointHostName: process.env.QnAEndpointHostName
 });
 
-var basicQnAMakerPreviewDialog = new builder_cognitiveservices.QnAMakerDialog({
-    recognizers: [previewRecognizer],
-    defaultMessage: 'No match! Try changing the query terms!',
+var licenseQNADialog = new builder_cognitiveservices.QnAMakerDialog({
+    recognizers: [licenseRecognizer],
+    defaultMessage: 'No match found related to license!',
     qnaThreshold: 0.3
 }
 );
 
-bot.dialog('basicQnAMakerPreviewDialog', basicQnAMakerPreviewDialog);
 
 // Recognizer and and Dialog for GA QnAMaker service
-var recognizer = new builder_cognitiveservices.QnAMakerRecognizer({
-    knowledgeBaseId: process.env.QnAKnowledgebaseId,
+var serviceRecognizer = new builder_cognitiveservices.QnAMakerRecognizer({
+    knowledgeBaseId: process.env.ServiceAQNABASEID,
     authKey: process.env.QnAAuthKey || process.env.QnASubscriptionKey, // Backward compatibility with QnAMaker (Preview)
     endpointHostName: process.env.QnAEndpointHostName
 });
 
-var basicQnAMakerDialog = new builder_cognitiveservices.QnAMakerDialog({
-    recognizers: [recognizer],
-    defaultMessage: 'No match! Try changing the query terms!',
+var serviceQNADialog = new builder_cognitiveservices.QnAMakerDialog({
+    recognizers: [serviceRecognizer],
+    defaultMessage: 'No match found related to service',
     qnaThreshold: 0.3
 }
 );
 
-bot.dialog('basicQnAMakerDialog', basicQnAMakerDialog);
+bot.dialog('serviceQNADialog', serviceQNADialog);
+bot.dialog('licenseQNADialog', licenseQNADialog);
 
-bot.dialog('/', //basicQnAMakerDialog);
-    [
-        function (session) {
-            var qnaKnowledgebaseId = process.env.QnAKnowledgebaseId;
-            var qnaAuthKey = process.env.QnAAuthKey || process.env.QnASubscriptionKey;
-            var endpointHostName = process.env.QnAEndpointHostName;
+server.get('/', restify.plugins.serveStatic({
+    directory: __dirname,
+    default: '/index.html'
+}));
 
-            // QnA Subscription Key and KnowledgeBase Id null verification
-            if ((qnaAuthKey == null || qnaAuthKey == '') || (qnaKnowledgebaseId == null || qnaKnowledgebaseId == ''))
-                session.send('Please set QnAKnowledgebaseId, QnAAuthKey and QnAEndpointHostName (if applicable) in App Settings. Learn how to get them at https://aka.ms/qnaabssetup.');
-            else {
-                if (endpointHostName == null || endpointHostName == '')
-                    // Replace with Preview QnAMakerDialog service
-                    session.replaceDialog('basicQnAMakerPreviewDialog');
-                else
-                    // Replace with GA QnAMakerDialog service
-                    session.replaceDialog('basicQnAMakerDialog');
-            }
-        }
-    ]);
 
-server.get('/', restify.plugins.serveStatic({  
-        directory: __dirname,  
-        default: '/index.html'  
-       })); 
+bot.dialog('Licensing',
+    (session) => {
+        session.send('You reached the Licensing Department');
+        session.replaceDialog('licenseQNADialog');
+    }
+).triggerAction({
+    matches: 'Licensing'
+})
+
+
+bot.dialog('Support',
+    (session) => {
+        session.send('You reached the Support Department');
+        session.replaceDialog('serviceQNADialog');
+    }
+).triggerAction({
+    matches: 'Support'
+})  
+
+bot.dialog('greeting',
+    (session) => {
+        session.send('Hi How I may help you');
+        session.endDialog();
+    }
+).triggerAction({
+    matches: 'greeting'
+})  
