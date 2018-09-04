@@ -106,11 +106,6 @@ var serviceQNADialog = new builder_cognitiveservices.QnAMakerDialog({
 bot.dialog('serviceQNADialog', serviceQNADialog);
 bot.dialog('licenseQNADialog', licenseQNADialog);
 
-server.get('/', restify.plugins.serveStatic({
-    directory: __dirname,
-    default: '/index.html'
-}));
-
 
 bot.dialog('Licensing',
     (session) => {
@@ -174,3 +169,8 @@ function getLicenseImage(session) {
         builder.CardImage.create(session, 'https://static.thenounproject.com/png/8005-200.png')
     ];
 }
+
+server.get('/', restify.plugins.serveStatic({
+    directory: __dirname,
+    default: '/index.html'
+}));
