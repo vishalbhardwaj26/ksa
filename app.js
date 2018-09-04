@@ -47,20 +47,19 @@ var bot = new builder.UniversalBot(connector, (session) => {
                 .title("Support Related Queries")
                 .images(getSupportImage(session))
                 .buttons([
-                    builder.CardAction.imBack(session, "Need Assistance on Support", "Support")
+                    builder.CardAction.imBack(session, "need assistance on support please", "Support"),
                 ]),
             new builder.ThumbnailCard(session)
                 .title("License Related Queries")
                 .images(getLicenseImage(session))
                 .buttons([
-                    builder.CardAction.imBack(session, "Need Assistance on License", "License")
+                    builder.CardAction.imBack(session, "need assistance on license Please", "License")
                 ])
         ]);
         session.send(msg).endDialog();
     }, 3000);
 });
 bot.set('storage', tableStorage);
-
 
 
 // Make sure you add code to validate these fields
@@ -107,6 +106,12 @@ bot.dialog('serviceQNADialog', serviceQNADialog);
 bot.dialog('licenseQNADialog', licenseQNADialog);
 
 
+bot.dialog('fromCards', (session) => {
+    session.send('Sure let me know what you need to know about License');
+}).triggerAction({ matches: 'supportHelp'});
+
+
+
 bot.dialog('Licensing',
     (session) => {
         session.sendTyping();
@@ -126,7 +131,7 @@ bot.dialog('Support',
 })
 
 bot.dialog('manual',
-    (session) => {
+    [(session) => {
         session.sendTyping();
         var msg = new builder.Message(session);
         msg.attachmentLayout(builder.AttachmentLayout.list)
@@ -139,7 +144,9 @@ bot.dialog('manual',
         ]);
         session.send('Sure, You can refer the following manual for the query');
         session.send(msg);
-    }
+    }, (session, results) => {
+        session.endDialog(`${results.response}`);
+    }]
 ).triggerAction({
     matches: 'manual'
 })
@@ -151,11 +158,14 @@ bot.dialog('greeting', [ (session) => {
         builder.Prompts.text(session, 'Hi! What is your name ?');
     }, 3000);
 }, (session, results ) => {
-    session.endDialog(`Hello ${results.response}!, Please tell me how can i help you`);
+        session.endDialog(`Hello ${results.response}!, Please tell me how can i help you`);
 }
 ]).triggerAction( { matches : 'greeting'})
 
 
+bot.dialog('greetingAcceptance', (session) => {
+    session.send('Your Welcome, I am here ping me if you need anything else');
+}).triggerAction( { matches : 'greetingAcceptance'})
 
 
 function getSupportImage(session) {
