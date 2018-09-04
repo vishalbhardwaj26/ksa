@@ -98,7 +98,7 @@ var serviceRecognizer = new builder_cognitiveservices.QnAMakerRecognizer({
 
 var serviceQNADialog = new builder_cognitiveservices.QnAMakerDialog({
     recognizers: [serviceRecognizer],
-    defaultMessage: 'No match found related to service',
+    defaultMessage: 'Not sure, For better solution contact Business Support at 800.507.6274',
     qnaThreshold: 0.5
 }
 );
@@ -114,17 +114,16 @@ server.get('/', restify.plugins.serveStatic({
 
 bot.dialog('Licensing',
     (session) => {
-        session.send('You reached the Licensing Department');
+        session.sendTyping();
         session.replaceDialog('licenseQNADialog')
     }
 ).triggerAction({
     matches: 'Licensing'
 })
 
-
 bot.dialog('Support',
     (session) => {
-        session.send('You reached the Support Department');
+        session.sendTyping();
         session.replaceDialog('serviceQNADialog')
     }
 ).triggerAction({
@@ -133,6 +132,7 @@ bot.dialog('Support',
 
 bot.dialog('manual',
     (session) => {
+        session.sendTyping();
         var msg = new builder.Message(session);
         msg.attachmentLayout(builder.AttachmentLayout.list)
         msg.attachments([
