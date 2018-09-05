@@ -158,7 +158,7 @@ bot.dialog('greeting', [ (session) => {
         builder.Prompts.text(session, 'Hi! What is your name ?');
     }, 3000);
 }, (session, results ) => {
-        session.endDialog(`Hello ${results.response}!, Please tell me how can i help you`);
+        session.endDialog(`Hello ${results.response}! I am Keybot, Please tell me how can i help you`);
 }
 ]).triggerAction( { matches : 'greeting'})
 
