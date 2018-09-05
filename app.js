@@ -82,7 +82,7 @@ var licenseRecognizer = new builder_cognitiveservices.QnAMakerRecognizer({
 
 var licenseQNADialog = new builder_cognitiveservices.QnAMakerDialog({
     recognizers: [licenseRecognizer],
-    defaultMessage: 'Not sure, For better solution contact Business Support at 800.507.6274',
+    defaultMessage: "I don't understand! Sometimes I have an easier time with a few simple keywords. You can visit www.keysight.com or contact at business support for better solution at 800.507.6274",
     qnaThreshold: 0.5
 }
 );
@@ -97,7 +97,7 @@ var serviceRecognizer = new builder_cognitiveservices.QnAMakerRecognizer({
 
 var serviceQNADialog = new builder_cognitiveservices.QnAMakerDialog({
     recognizers: [serviceRecognizer],
-    defaultMessage: 'Not sure, For better solution contact Business Support at 800.507.6274',
+    defaultMessage: "I don't understand! Sometimes I have an easier time with a few simple keywords. You can visit www.keysight.com or contact at business support for better solution at 800.507.6274",
     qnaThreshold: 0.5
 }
 );
@@ -107,7 +107,7 @@ bot.dialog('licenseQNADialog', licenseQNADialog);
 
 
 bot.dialog('fromCards', (session) => {
-    session.send('Sure let me know what you need to know about License');
+    session.send('Sure let me know what you need to know about ?');
 }).triggerAction({ matches: 'supportHelp'});
 
 
