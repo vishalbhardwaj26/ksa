@@ -57,7 +57,7 @@ var bot = new builder.UniversalBot(connector, (session) => {
                 ])
         ]);
         session.send(msg).endDialog();
-    }, 6000);
+    }, 3000);
 });
 bot.set('storage', tableStorage);
 
@@ -83,7 +83,7 @@ var licenseRecognizer = new builder_cognitiveservices.QnAMakerRecognizer({
 var licenseQNADialog = new builder_cognitiveservices.QnAMakerDialog({
     recognizers: [licenseRecognizer],
     defaultMessage: "I don't understand! Sometimes I have an easier time with a few simple keywords. You can visit www.keysight.com or contact at business support for better solution at 800.507.6274",
-    qnaThreshold: 0.3
+    qnaThreshold: 0.5
 }
 );
 
@@ -98,7 +98,7 @@ var serviceRecognizer = new builder_cognitiveservices.QnAMakerRecognizer({
 var serviceQNADialog = new builder_cognitiveservices.QnAMakerDialog({
     recognizers: [serviceRecognizer],
     defaultMessage: "I don't understand! Sometimes I have an easier time with a few simple keywords. You can visit www.keysight.com or contact at business support for better solution at 800.507.6274",
-    qnaThreshold: 0.3
+    qnaThreshold: 0.5
 }
 );
 
